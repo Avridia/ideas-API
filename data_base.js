@@ -88,15 +88,18 @@ export function deleteIdea(id){
     });
 }
 
-export function addLike({likes,user}){
+export function addLike({likes,user,likesDBLoading}){
     return new Promise((fulfill,reject) => {
 
         const conexion = conect();
         console.log("likes",likes)
 
-        let idLikes = likes.map(like => like.id)
+        let id_from_Likes = likes.map(like => like.id)
+        let IDLikes = likesDBLoading.map(item => item.liked_id)
+        let idLikes = [...IDLikes,...id_from_Likes]
         let urlLikes = likes.map(like => like.url)
-        console.log("aqui likes y user",likes,user)
+
+        console.log("likesDBLoading y idLikes", likesDBLoading,idLikes)
         
         conexion`UPDATE users SET liked_id = ${idLikes} WHERE user_name = ${user} RETURNING liked_id`
         .then( ([{liked_id}]) => {

@@ -154,11 +154,11 @@ server.get("/upload/img_ideas", async (req,res) => {
 
 server.post("/add-like", async (request,response) => {
 
-    let {likes,user} = request.body
+    let {likes,user,likesDBLoading} = request.body
 
     try{
         
-        let id = await addLike({likes,user});
+        let id = await addLike({likes,user,likesDBLoading});
 
         return response.json({likes});
 
@@ -174,10 +174,6 @@ server.post("/add-like", async (request,response) => {
 
 server.post("/likes", async (request,response) => {
 
-
-
-
-    
     console.log("request.body es igual a",request.body)
     let {user} = request.body
     
