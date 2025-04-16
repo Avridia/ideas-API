@@ -121,10 +121,6 @@ export function readLikes({user}){
 
         const conexion = conect();
 
-
-
-
-        
         // selecting two columns in two different tables, unnesting values from liked_id's array and rename the individual values, then joining the id with the matching url
         conexion`SELECT unnest_liked_id.liked_id, ideas.url
                     FROM users 
@@ -139,6 +135,27 @@ export function readLikes({user}){
         .catch( error => {
             conexion.end();
             reject({ error : "data base error 1" });
+        });
+        
+    });
+}
+
+export function infoModal({id}){
+
+    return new Promise((fulfill,reject) => {
+
+        const conexion = conect();
+
+        conexion`SELECT idea_name FROM ideas WHERE id = ${id}`
+        .then( title => {
+            conexion.end();
+            console.log("este es el title: ",title)
+            fulfill(title);
+        })
+        .catch( error => {
+            conexion.end();
+            console.log("error en bd", error)
+            reject({ error : "data base error 3" });
         });
         
     });

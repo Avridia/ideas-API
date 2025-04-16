@@ -29,7 +29,7 @@ const upload = multer({ storage : storage })
 
 
 
-import { readIdeas,createIdea,deleteIdea,checkUser,addLike,readLikes } from './data_base.js'
+import { readIdeas,createIdea,deleteIdea,checkUser,addLike,readLikes,infoModal } from './data_base.js'
 
 
 server.use(express.urlencoded({ extended: true }));
@@ -190,6 +190,24 @@ server.post("/likes", async (request,response) => {
     }
     
 });
+
+server.post("/modal/:id", async (request,response) => {
+    console.log("request.body en /modal/:id es igual a",request.body);
+    let {id} = request.body;
+
+    try{
+        let title = await infoModal({id});
+
+        response.json({title})
+
+    }catch(error){
+
+        response.status(500);
+        console.log("error en index.js",error)
+
+        response.json({ error : error })
+    }
+})
 
 
 server.use((error,request,response,next) => { 
