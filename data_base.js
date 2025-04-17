@@ -146,16 +146,55 @@ export function infoModal({id}){
 
         const conexion = conect();
 
-        conexion`SELECT idea_name FROM ideas WHERE id = ${id}`
-        .then( title => {
+        conexion`SELECT idea_name,info FROM ideas WHERE id = ${id}`
+        .then( ([{idea_name,info}]) => {
             conexion.end();
-            console.log("este es el title: ",title)
-            fulfill(title);
+            console.log("este es el title: ",idea_name,info)
+            fulfill({idea_name,info});
         })
         .catch( error => {
             conexion.end();
             console.log("error en bd", error)
             reject({ error : "data base error 3" });
+        });
+        
+    });
+}
+
+export function editInfo(infoCard,id){ 
+    return new Promise((fulfill,reject) => {
+        const conexion = conect(); 
+
+        conexion`UPDATE ideas SET info = ${infoCard} WHERE id = ${id}` 
+        .then( ({count}) => {
+            conexion.end();
+            fulfill(count);
+        })
+        .catch( error => {
+            console.log(error);
+            conexion.end(); 
+            reject({ error : "database error" }); 
+        });
+    });
+};
+
+export function deleteLike(user,id){ 
+    return new Promise((fulfill,reject) => {
+        const conexion = conect(); 
+
+        console.log("en db id es ",id)
+        console.log("en db user es ",user)
+
+        
+        conexion`UPDATE users SET liked_id = array_remove(liked_id,${id}) WHERE user_name = ${user}` 
+        .then( ({count}) => {  
+            conexion.end();
+            fulfill(count);
+        })
+        .catch( error => {
+            conexion.end(); 
+            console.log("error en db borrar",error);
+            reject({ error : "error en base de datos" }); 
         });
         
     });

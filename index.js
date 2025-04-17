@@ -29,7 +29,7 @@ const upload = multer({ storage : storage })
 
 
 
-import { readIdeas,createIdea,deleteIdea,checkUser,addLike,readLikes,infoModal } from './data_base.js'
+import { readIdeas,createIdea,deleteIdea,checkUser,addLike,readLikes,infoModal,editInfo,deleteLike } from './data_base.js'
 
 
 server.use(express.urlencoded({ extended: true }));
@@ -196,9 +196,9 @@ server.post("/modal/:id", async (request,response) => {
     let {id} = request.body;
 
     try{
-        let title = await infoModal({id});
+        let {idea_name,info} = await infoModal({id});
 
-        response.json({title})
+        response.json({idea_name,info})
 
     }catch(error){
 
@@ -206,6 +206,51 @@ server.post("/modal/:id", async (request,response) => {
         console.log("error en index.js",error)
 
         response.json({ error : error })
+    }
+})
+
+
+server.put("/likes/edit/text/:id", async (request,response) => {
+    try{
+        let {infoCard} = request.body; 
+     
+        let EditedInfo = await editInfo(infoCard,request.params.id);
+
+        response.status(204);
+
+        return response.send("");
+        
+
+    }catch(error){
+        console.log(error)
+
+        response.status(500);
+
+        response.json({ error : "server error" });
+
+    }
+
+})
+
+server.delete("/likes/delete/:id", async (request,response) => {
+    try{
+
+        let {user} = request.body
+        let deletedLike = await deleteLike(user,request.params.id);
+
+        if(deletedLike == 1){
+            response.status(204);
+
+            return response.send("");
+        }
+
+
+    }catch(error){
+
+        response.status(500);
+        console.log("error en index borrar",error)
+        response.json({ error : "server error" });
+
     }
 })
 
