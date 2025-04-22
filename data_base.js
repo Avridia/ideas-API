@@ -1,7 +1,9 @@
+/* __________ MODULES IMPORTATION ______________________________ */
 import postgres from 'postgres';
 import dotenv from 'dotenv'; 
 dotenv.config();
 
+/* __________ FUNCTIONS ______________________________ */
 function conect(){ 
     return postgres({
         host : process.env.DB_HOST,
@@ -46,7 +48,7 @@ export function readIdeas(){
         })
         .catch( error => {
             conexion.end();
-            reject({ error : "data base error 1" });
+            reject({ error : "data base error" });
         });
     });
 }
@@ -83,7 +85,7 @@ export function deleteIdea(id){
         .catch( error => {
             conexion.end();
             console.log("aqui", error) 
-            reject({ error : "data base error 1" }); 
+            reject({ error : "data base error" }); 
         });
     });
 }
@@ -92,14 +94,11 @@ export function addLike({likes,user,likesDBLoading}){
     return new Promise((fulfill,reject) => {
 
         const conexion = conect();
-        console.log("likes",likes)
 
         let id_from_Likes = likes.map(like => like.id)
         let IDLikes = likesDBLoading.map(item => item.liked_id)
         let idLikes = [...IDLikes,...id_from_Likes]
-        let urlLikes = likes.map(like => like.url)
 
-        console.log("likesDBLoading y idLikes", likesDBLoading,idLikes)
         
         conexion`UPDATE users SET liked_id = ${idLikes} WHERE user_name = ${user} RETURNING liked_id`
         .then( ([{liked_id}]) => {
@@ -121,7 +120,7 @@ export function readLikes({user}){
 
         const conexion = conect();
 
-        // selecting two columns in two different tables, unnesting values from liked_id's array and rename the individual values, then joining the id with the matching url
+        // selecting two columns in two different tables, unnesting values from liked_id's array and rename the individual values, then joining the ids
         conexion`SELECT unnest_liked_id.liked_id, ideas.url
                     FROM users 
                     JOIN LATERAL unnest(users.liked_id) AS unnest_liked_id(liked_id) ON TRUE 
@@ -129,19 +128,19 @@ export function readLikes({user}){
                     WHERE users.user_name = ${user}`
         .then( likes => {
             conexion.end();
-            console.log("estos son los likes de la funcion readLikes: ",likes)
+           
             fulfill(likes);
         })
         .catch( error => {
             conexion.end();
-            reject({ error : "data base error 1" });
+
+            reject({ error : "data base error" });
         });
         
     });
 }
 
 export function infoModal({id}){
-
     return new Promise((fulfill,reject) => {
 
         const conexion = conect();
@@ -149,13 +148,13 @@ export function infoModal({id}){
         conexion`SELECT idea_name,info FROM ideas WHERE id = ${id}`
         .then( ([{idea_name,info}]) => {
             conexion.end();
-            console.log("este es el title: ",idea_name,info)
+            
             fulfill({idea_name,info});
         })
         .catch( error => {
             conexion.end();
-            console.log("error en bd", error)
-            reject({ error : "data base error 3" });
+      
+            reject({ error : "data base error" });
         });
         
     });
@@ -168,11 +167,12 @@ export function editInfo(infoCard,id){
         conexion`UPDATE ideas SET info = ${infoCard} WHERE id = ${id}` 
         .then( ({count}) => {
             conexion.end();
+
             fulfill(count);
         })
         .catch( error => {
-            console.log(error);
             conexion.end(); 
+
             reject({ error : "database error" }); 
         });
     });
@@ -181,21 +181,17 @@ export function editInfo(infoCard,id){
 export function deleteLike(user,id){ 
     return new Promise((fulfill,reject) => {
         const conexion = conect(); 
-
-        console.log("en db id es ",id)
-        console.log("en db user es ",user)
-
         
         conexion`UPDATE users SET liked_id = array_remove(liked_id,${id}) WHERE user_name = ${user}` 
         .then( ({count}) => {  
             conexion.end();
+
             fulfill(count);
         })
         .catch( error => {
             conexion.end(); 
-            console.log("error en db borrar",error);
-            reject({ error : "error en base de datos" }); 
+    
+            reject({ error : "database error" }); 
         });
-        
     });
 }
