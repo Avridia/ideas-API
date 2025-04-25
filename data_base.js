@@ -97,7 +97,7 @@ export function addLike({likes,user,likesDBLoading}){
 
         let id_from_Likes = likes.map(like => like.id)
         let IDLikes = likesDBLoading.map(item => item.liked_id)
-        let idLikes = [...IDLikes,...id_from_Likes]
+        let idLikes = [...new Set([...IDLikes, ...id_from_Likes])] // with Set we avoid duplicated ids
 
         
         conexion`UPDATE users SET liked_id = ${idLikes} WHERE user_name = ${user} RETURNING liked_id`
